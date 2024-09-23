@@ -1,0 +1,8 @@
+[package]
+name = "aionbot-adapter-onebot"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+aionbot-core = { version = "0.1.0", path = "../aionbot-core" }
+onebot_v11 = "0.1.5"
