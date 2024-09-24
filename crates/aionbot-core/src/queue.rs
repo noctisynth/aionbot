@@ -87,16 +87,6 @@ impl<T: Eq + Hash + Clone> EventQueue<T> {
     pub fn is_empty(&self) -> bool {
         self.heap.is_empty()
     }
-
-    pub fn generate(&mut self) -> impl Iterator<Item = Option<T>> + '_ {
-        std::iter::from_fn(move || {
-            if !self.is_empty() {
-                Some(self.pop())
-            } else {
-                None
-            }
-        })
-    }
 }
 
 impl<T: Eq + Hash + Clone> Default for EventQueue<T> {

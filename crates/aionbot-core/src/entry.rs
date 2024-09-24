@@ -4,10 +4,10 @@ use crate::{router::Router, types::Callback};
 
 #[derive(Clone)]
 pub struct Entry {
-    id: String,
-    priority: i8,
-    router: Arc<Box<dyn Router>>,
-    callback: Arc<Callback>,
+    pub id: &'static str,
+    pub priority: i8,
+    pub router: Arc<Box<dyn Router>>,
+    pub callback: Arc<Callback>,
 }
 
 impl Entry {

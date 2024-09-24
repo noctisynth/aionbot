@@ -4,6 +4,7 @@
         "aionbot",
         "chronos",
         "Deque",
+        "Hasher",
         "onebot",
         "serde"
     ]

@@ -27,10 +27,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "aionbot"
+version = "0.1.0"
+dependencies = [
+ "aionbot-adapter-onebot",
+ "aionbot-core",
+ "aionbot-macros",
+ "tokio",
+]
+
+[[package]]
 name = "aionbot-adapter-onebot"
 version = "0.1.0"
 dependencies = [
  "aionbot-core",
+ "anyhow",
  "onebot_v11",
 ]
 
@@ -43,6 +54,15 @@ dependencies = [
  "rayon",
  "regex",
  "serde_json",
+]
+
+[[package]]
+name = "aionbot-macros"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]

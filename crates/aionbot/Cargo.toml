@@ -1,0 +1,10 @@
+[package]
+name = "aionbot"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+aionbot-adapter-onebot = { version = "0.1.0", path = "../aionbot-adapter-onebot" }
+aionbot-core = { version = "0.1.0", path = "../aionbot-core" }
+aionbot-macros = { version = "0.1.0", path = "../aionbot-macros" }
+tokio = { version = "1.40.0", features = ["full"] }
