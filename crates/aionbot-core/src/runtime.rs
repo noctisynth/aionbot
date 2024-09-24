@@ -30,12 +30,17 @@ pub struct Builder<R: Runtime + Default> {
     handler: Arc<Option<Handler>>,
     runtime: R,
     state: Arc<StateManager>,
+    setup: Option<Box<dyn FnOnce(&R) + Send + Sync>>,
 }
 
 impl<R> Builder<R>
 where
     R: Runtime + Default + Send + 'static,
 {
+    pub fn setup(&mut self, setup: Box<dyn FnOnce(&R) + Send + Sync>) {
+        self.setup = Some(setup);
+    }
+
     pub fn invoke_handler(mut self, entries: Vec<Entry>) -> Self {
         self.handler = Arc::new(Some(Handler::new(entries)));
         self
@@ -47,6 +52,12 @@ where
     }
 
     pub async fn run(&mut self) -> Result<()> {
+        println!("Starting bot...");
+        self.runtime.prepare().await?;
+        if let Some(setup) = self.setup.take() {
+            self.runtime.setup(setup);
+        }
+        self.runtime.finalize().await?;
         self.runtime.run().await
     }
 }
@@ -62,6 +73,7 @@ where
             handler: Arc::new(None),
             runtime,
             state: Arc::clone(&manager),
+            setup: None,
         }
     }
 }
@@ -72,8 +84,16 @@ pub trait Runtime {
 
     fn manager(&self) -> &StateManager;
 
+    fn prepare(&mut self) -> impl std::future::Future<Output = Result<()>> + Send {
+        async move { Ok(()) }
+    }
+
     fn setup(&mut self, setup: Box<dyn FnOnce(&Self) + Send + Sync>) {
         setup(self)
+    }
+
+    fn finalize(&mut self) -> impl std::future::Future<Output = Result<()>> + Send {
+        async move { Ok(()) }
     }
 
     fn run(&self) -> impl std::future::Future<Output = Result<()>> + Send;

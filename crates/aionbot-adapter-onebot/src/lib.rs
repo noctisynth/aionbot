@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use aionbot_core::runtime::{Runtime, StateManager};
 use anyhow::Result;
+use onebot_v11::connect::ws_reverse::ReverseWsConnect;
 
 pub extern crate aionbot_core;
 
@@ -17,9 +18,18 @@ impl Adapter for aionbot_core::event::Event {
     }
 }
 
-#[derive(Default)]
 pub struct OnebotRuntime {
+    connect: Option<Arc<ReverseWsConnect>>,
     state: Arc<StateManager>,
+}
+
+impl Default for OnebotRuntime {
+    fn default() -> Self {
+        Self {
+            connect: None,
+            state: Arc::new(StateManager::default()),
+        }
+    }
 }
 
 impl Runtime for OnebotRuntime {
@@ -30,6 +40,19 @@ impl Runtime for OnebotRuntime {
 
     fn manager(&self) -> &StateManager {
         &self.state
+    }
+
+    async fn prepare(&mut self) -> Result<()> {
+        self.connect = Some(ReverseWsConnect::new(Default::default()).await?);
+        Ok(())
+    }
+
+    fn setup(&mut self, setup: Box<dyn FnOnce(&Self) + Send + Sync>) {
+        setup(self);
+    }
+
+    async fn finalize(&mut self) -> Result<()> {
+        Ok(())
     }
 
     async fn run(&self) -> Result<()> {
