@@ -7,3 +7,4 @@ use crate::event::Event;
 
 pub type HandlerCallback = BoxFuture<'static, Result<()>>;
 pub type Callback = fn(Arc<Event>) -> HandlerCallback;
+pub type SetupFn<R> = Box<dyn FnOnce(&R) + Send + Sync>;

@@ -200,115 +200,153 @@ impl Router for RegexRouter {
 //     }
 // }
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
+#[cfg(test)]
+mod tests {
+    #![allow(clippy::borrow_interior_mutable_const)]
+    #![allow(clippy::declare_interior_mutable_const)]
+    use std::cell::LazyCell;
 
-//     #[test]
-//     fn test_exact_match_router() {
-//         let router = ExactMatchRouter::new("hello", false);
-//         assert!(router.matches("hello"));
-//         assert!(!router.matches("world"));
-//         assert!(!router.matches("hello world"));
-//     }
+    use crate::event::Message;
 
-//     #[test]
-//     fn test_exact_match_router_ignore_spaces() {
-//         let router = ExactMatchRouter::new("hello world", true);
-//         assert!(router.matches("hello world"));
-//         assert!(!router.matches("hello"));
-//         assert!(!router.matches("world"));
-//         assert!(!router.matches("hello world!"));
-//     }
+    use super::*;
 
-//     #[test]
-//     fn test_regex_router() {
-//         let router = RegexRouter::new(r"^hello.*$");
-//         assert!(router.matches("hello world"));
-//         assert!(!router.matches("world"));
-//         assert!(router.matches("hello world!"));
-//     }
+    const HELLO_EVENT: LazyCell<Event> = LazyCell::new(|| Event {
+        plain_data: Message {
+            segments: vec!["hello".into()],
+            ..Default::default()
+        },
+        ..Default::default()
+    });
 
-//     #[test]
-//     fn test_starts_with_router() {
-//         let router = StartsWithRouter::new("hello", false);
-//         assert!(router.matches("hello world"));
-//         assert!(!router.matches("world"));
-//         assert!(router.matches("hello world!"));
-//     }
+    const WORLD_EVENT: LazyCell<Event> = LazyCell::new(|| Event {
+        plain_data: Message {
+            segments: vec!["world".into()],
+            ..Default::default()
+        },
+        ..Default::default()
+    });
 
-//     #[test]
-//     fn test_starts_with_router_ignore_spaces() {
-//         let router = StartsWithRouter::new("hello world", true);
-//         assert!(router.matches("hello world"));
-//         assert!(!router.matches("hello"));
-//         assert!(!router.matches("world"));
-//         assert!(router.matches("hello world!"));
-//     }
+    const HELLO_WORLD_EVENT: LazyCell<Event> = LazyCell::new(|| Event {
+        plain_data: Message {
+            segments: vec!["hello".into(), " ".into(), "world".into()],
+            ..Default::default()
+        },
+        ..Default::default()
+    });
 
-//     #[test]
-//     fn test_contains_router() {
-//         let router = ContainsRouter::new("world", false);
-//         assert!(router.matches("hello world"));
-//         assert!(!router.matches("hello"));
-//         assert!(router.matches("world"));
-//         assert!(router.matches("hello world!"));
-//     }
+    const HAPPY_HELLO_WORLD_EVENT: LazyCell<Event> = LazyCell::new(|| Event {
+        plain_data: Message {
+            segments: vec!["hello".into(), " ".into(), "world!".into()],
+            ..Default::default()
+        },
+        ..Default::default()
+    });
 
-//     #[test]
-//     fn test_contains_router_ignore_spaces() {
-//         let router = ContainsRouter::new("hello world", true);
-//         assert!(router.matches("hello world"));
-//         assert!(!router.matches("hello"));
-//         assert!(!router.matches("world"));
-//         assert!(router.matches("hello world!"));
-//     }
+    #[test]
+    fn test_exact_match_router() {
+        let router = ExactMatchRouter::new("hello", false);
+        assert!(router.matches(&HELLO_EVENT));
+        assert!(!router.matches(&WORLD_EVENT));
+        assert!(!router.matches(&HELLO_WORLD_EVENT));
+    }
 
-//     #[test]
-//     fn test_ends_with_router() {
-//         let router = EndsWithRouter::new("world", false);
-//         assert!(router.matches("hello world"));
-//         assert!(!router.matches("hello"));
-//         assert!(router.matches("world"));
-//         assert!(!router.matches("hello world!"));
-//     }
+    #[test]
+    fn test_exact_match_router_ignore_spaces() {
+        let router = ExactMatchRouter::new("hello world", true);
+        assert!(router.matches(&HELLO_WORLD_EVENT));
+        assert!(!router.matches(&HELLO_EVENT));
+        assert!(!router.matches(&WORLD_EVENT));
+        assert!(!router.matches(&HAPPY_HELLO_WORLD_EVENT));
+    }
 
-//     #[test]
-//     fn test_ends_with_router_ignore_spaces() {
-//         let router = EndsWithRouter::new("hello world", true);
-//         assert!(router.matches("hello world"));
-//         assert!(!router.matches("hello"));
-//         assert!(!router.matches("world"));
-//         assert!(!router.matches("hello world!"));
-//     }
+    #[test]
+    fn test_regex_router() {
+        let router = RegexRouter::new(r"^hello.*$");
+        assert!(router.matches(&HELLO_WORLD_EVENT));
+        assert!(!router.matches(&WORLD_EVENT));
+        assert!(router.matches(&HAPPY_HELLO_WORLD_EVENT));
+    }
 
-//     #[test]
-//     fn test_or_router() {
-//         let router = OrRouter::new(vec![
-//             Box::new(ExactMatchRouter::new("hello", false)),
-//             Box::new(ExactMatchRouter::new("world", false)),
-//         ]);
-//         assert!(router.matches("hello"));
-//         assert!(router.matches("world"));
-//         assert!(!router.matches("foo"));
-//     }
+    // #[test]
+    // fn test_starts_with_router() {
+    //     let router = StartsWithRouter::new("hello", false);
+    //     assert!(router.matches("hello world"));
+    //     assert!(!router.matches("world"));
+    //     assert!(router.matches("hello world!"));
+    // }
 
-//     #[test]
-//     fn test_and_router() {
-//         let router = AndRouter::new(vec![
-//             Box::new(ExactMatchRouter::new("hello", false)),
-//             Box::new(ExactMatchRouter::new("world", false)),
-//         ]);
-//         assert!(!router.matches("hello"));
-//         assert!(!router.matches("world"));
-//         assert!(!router.matches("foo"));
-//         assert!(!router.matches("hello world"));
-//     }
+    // #[test]
+    // fn test_starts_with_router_ignore_spaces() {
+    //     let router = StartsWithRouter::new("hello world", true);
+    //     assert!(router.matches("hello world"));
+    //     assert!(!router.matches("hello"));
+    //     assert!(!router.matches("world"));
+    //     assert!(router.matches("hello world!"));
+    // }
 
-//     #[test]
-//     fn test_not_router() {
-//         let router = NotRouter::new(Box::new(ExactMatchRouter::new("hello", false)));
-//         assert!(!router.matches("hello"));
-//         assert!(router.matches("world"));
-//     }
-// }
+    // #[test]
+    // fn test_contains_router() {
+    //     let router = ContainsRouter::new("world", false);
+    //     assert!(router.matches("hello world"));
+    //     assert!(!router.matches("hello"));
+    //     assert!(router.matches("world"));
+    //     assert!(router.matches("hello world!"));
+    // }
+
+    // #[test]
+    // fn test_contains_router_ignore_spaces() {
+    //     let router = ContainsRouter::new("hello world", true);
+    //     assert!(router.matches("hello world"));
+    //     assert!(!router.matches("hello"));
+    //     assert!(!router.matches("world"));
+    //     assert!(router.matches("hello world!"));
+    // }
+
+    // #[test]
+    // fn test_ends_with_router() {
+    //     let router = EndsWithRouter::new("world", false);
+    //     assert!(router.matches("hello world"));
+    //     assert!(!router.matches("hello"));
+    //     assert!(router.matches("world"));
+    //     assert!(!router.matches("hello world!"));
+    // }
+
+    // #[test]
+    // fn test_ends_with_router_ignore_spaces() {
+    //     let router = EndsWithRouter::new("hello world", true);
+    //     assert!(router.matches("hello world"));
+    //     assert!(!router.matches("hello"));
+    //     assert!(!router.matches("world"));
+    //     assert!(!router.matches("hello world!"));
+    // }
+
+    // #[test]
+    // fn test_or_router() {
+    //     let router = OrRouter::new(vec![
+    //         Box::new(ExactMatchRouter::new("hello", false)),
+    //         Box::new(ExactMatchRouter::new("world", false)),
+    //     ]);
+    //     assert!(router.matches("hello"));
+    //     assert!(router.matches("world"));
+    //     assert!(!router.matches("foo"));
+    // }
+
+    // #[test]
+    // fn test_and_router() {
+    //     let router = AndRouter::new(vec![
+    //         Box::new(ExactMatchRouter::new("hello", false)),
+    //         Box::new(ExactMatchRouter::new("world", false)),
+    //     ]);
+    //     assert!(!router.matches("hello"));
+    //     assert!(!router.matches("world"));
+    //     assert!(!router.matches("foo"));
+    //     assert!(!router.matches("hello world"));
+    // }
+
+    // #[test]
+    // fn test_not_router() {
+    //     let router = NotRouter::new(Box::new(ExactMatchRouter::new("hello", false)));
+    //     assert!(!router.matches("hello"));
+    //     assert!(router.matches("world"));
+    // }
+}

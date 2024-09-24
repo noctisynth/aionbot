@@ -4,9 +4,28 @@ use serde_json::Value;
 
 pub struct MessageSegment {
     pub text: String,
-    pub type_: String,
+    pub r#type: String,
 }
 
+impl From<&str> for MessageSegment {
+    fn from(value: &str) -> Self {
+        Self {
+            text: value.to_string(),
+            r#type: "text".to_string(),
+        }
+    }
+}
+
+impl From<String> for MessageSegment {
+    fn from(value: String) -> Self {
+        Self {
+            text: value,
+            r#type: "text".to_string(),
+        }
+    }
+}
+
+#[derive(Default)]
 pub struct Message {
     pub entity: Option<String>,
     pub segments: Vec<MessageSegment>,
@@ -21,6 +40,7 @@ impl fmt::Display for Message {
     }
 }
 
+#[derive(Default)]
 pub struct Event {
     pub plain_data: Message,
     pub user_id: String,
