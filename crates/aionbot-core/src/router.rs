@@ -202,6 +202,8 @@ impl Router for RegexRouter {
 
 #[cfg(test)]
 mod tests {
+    #![allow(clippy::borrow_interior_mutable_const)]
+    #![allow(clippy::declare_interior_mutable_const)]
     use std::cell::LazyCell;
 
     use crate::event::Message;
