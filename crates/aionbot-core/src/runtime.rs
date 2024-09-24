@@ -3,7 +3,7 @@ use std::sync::Arc;
 use anyhow::Result;
 use state::TypeMap;
 
-use crate::{entry::Entry, handler::Handler};
+use crate::{entry::Entry, handler::Handler, types::SetupFn};
 
 #[derive(Default)]
 pub struct StateManager(pub(crate) TypeMap!(Send + Sync));
@@ -30,14 +30,14 @@ pub struct Builder<R: Runtime + Default> {
     handler: Arc<Option<Handler>>,
     runtime: R,
     state: Arc<StateManager>,
-    setup: Option<Box<dyn FnOnce(&R) + Send + Sync>>,
+    setup: Option<SetupFn<R>>,
 }
 
 impl<R> Builder<R>
 where
     R: Runtime + Default + Send + 'static,
 {
-    pub fn setup(&mut self, setup: Box<dyn FnOnce(&R) + Send + Sync>) {
+    pub fn setup(&mut self, setup: SetupFn<R>) {
         self.setup = Some(setup);
     }
 
@@ -52,7 +52,6 @@ where
     }
 
     pub async fn run(&mut self) -> Result<()> {
-        println!("Starting bot...");
         self.runtime.prepare().await?;
         if let Some(setup) = self.setup.take() {
             self.runtime.setup(setup);
@@ -88,7 +87,7 @@ pub trait Runtime {
         async move { Ok(()) }
     }
 
-    fn setup(&mut self, setup: Box<dyn FnOnce(&Self) + Send + Sync>) {
+    fn setup(&mut self, setup: SetupFn<Self>) {
         setup(self)
     }
 
