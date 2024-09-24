@@ -4,6 +4,7 @@ use anyhow::Result;
 
 use crate::{entry::Entry, event::Event, queue::EventQueue};
 
+#[derive(Default)]
 pub struct Handler {
     pub entries: Vec<Entry>,
 }
