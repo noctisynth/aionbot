@@ -4,14 +4,14 @@ use serde_json::Value;
 
 pub struct MessageSegment {
     pub text: String,
-    pub type_: String,
+    pub r#type: String,
 }
 
 impl From<&str> for MessageSegment {
     fn from(value: &str) -> Self {
         Self {
             text: value.to_string(),
-            type_: "text".to_string(),
+            r#type: "text".to_string(),
         }
     }
 }
@@ -20,7 +20,7 @@ impl From<String> for MessageSegment {
     fn from(value: String) -> Self {
         Self {
             text: value,
-            type_: "text".to_string(),
+            r#type: "text".to_string(),
         }
     }
 }

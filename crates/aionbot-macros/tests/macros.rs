@@ -18,7 +18,7 @@ fn test_register_router() {
             entity: Some("test".to_string()),
             segments: vec![MessageSegment {
                 text: "test_router".to_string(),
-                type_: "text".to_string(),
+                r#type: "text".to_string(),
             }],
         },
         user_id: "test".to_string(),
@@ -39,7 +39,7 @@ fn test_register_router_priority() {
             entity: Some("test".to_string()),
             segments: vec![MessageSegment {
                 text: "test_router".to_string(),
-                type_: "text".to_string(),
+                r#type: "text".to_string(),
             }],
         },
         user_id: "test".to_string(),
