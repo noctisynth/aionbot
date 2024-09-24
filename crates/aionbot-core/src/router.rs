@@ -22,6 +22,15 @@ impl Router for String {
     }
 }
 
+#[derive(Default)]
+pub struct AnyRouter;
+
+impl Router for AnyRouter {
+    fn matches(&self, _event: &Event) -> bool {
+        true
+    }
+}
+
 pub struct ExactMatchRouter {
     pattern: String,
     ignore_spaces: bool,
