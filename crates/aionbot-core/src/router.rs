@@ -10,53 +10,60 @@ impl Router for str {
     }
 }
 
-impl Router for String {
-    fn matches(&self, message: &Event) -> bool {
-        self == &message.plain_data.to_string()
+impl Router for &str {
+    fn matches(&self, event: &Event) -> bool {
+        self == &event.plain_data.to_string()
     }
 }
 
-// pub struct ExactMatchRouter {
-//     pattern: String,
-//     ignore_spaces: bool,
-// }
+impl Router for String {
+    fn matches(&self, event: &Event) -> bool {
+        self == &event.plain_data.to_string()
+    }
+}
 
-// impl ExactMatchRouter {
-//     pub fn new(pattern: &str, ignore_spaces: bool) -> Self {
-//         Self {
-//             pattern: pattern.to_string(),
-//             ignore_spaces,
-//         }
-//     }
-// }
+pub struct ExactMatchRouter {
+    pattern: String,
+    ignore_spaces: bool,
+}
 
-// impl Router for ExactMatchRouter {
-//     fn matches(&self, message: &str) -> bool {
-//         if self.ignore_spaces {
-//             message.replace(" ", "") == self.pattern.replace(" ", "")
-//         } else {
-//             message == self.pattern
-//         }
-//     }
-// }
+impl ExactMatchRouter {
+    pub fn new(pattern: &str, ignore_spaces: bool) -> Self {
+        Self {
+            pattern: pattern.to_string(),
+            ignore_spaces,
+        }
+    }
+}
 
-// pub struct RegexRouter {
-//     pattern: regex::Regex,
-// }
+impl Router for ExactMatchRouter {
+    fn matches(&self, event: &Event) -> bool {
+        let message = event.plain_data.to_string();
+        if self.ignore_spaces {
+            message.replace(" ", "") == self.pattern.replace(" ", "")
+        } else {
+            message == self.pattern
+        }
+    }
+}
 
-// impl RegexRouter {
-//     pub fn new(pattern: &str) -> Self {
-//         Self {
-//             pattern: regex::Regex::new(pattern).unwrap(),
-//         }
-//     }
-// }
+pub struct RegexRouter {
+    pattern: regex::Regex,
+}
 
-// impl Router for RegexRouter {
-//     fn matches(&self, message: &str) -> bool {
-//         self.pattern.is_match(message)
-//     }
-// }
+impl RegexRouter {
+    pub fn new(pattern: &str) -> Self {
+        Self {
+            pattern: regex::Regex::new(pattern).unwrap(),
+        }
+    }
+}
+
+impl Router for RegexRouter {
+    fn matches(&self, event: &Event) -> bool {
+        self.pattern.is_match(&event.plain_data.to_string())
+    }
+}
 
 // pub struct StartsWithRouter {
 //     pattern: String,
