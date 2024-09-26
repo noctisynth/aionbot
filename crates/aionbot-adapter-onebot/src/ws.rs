@@ -12,8 +12,8 @@ use tokio_tungstenite::{
 pub struct Config {
     host: String,
     port: u16,
-    path: String,
-    access_token: Option<String>,
+    pub path: String,
+    pub access_token: Option<String>,
 }
 
 impl Default for Config {
@@ -76,6 +76,7 @@ impl Onebot {
                                         .get("X-Self-ID")
                                         .map(|id| id.to_str().unwrap().to_string())
                                         .unwrap_or_default();
+                                    println!("New bot connection: {}", bot_id);
                                     sender.send(Default::default()).unwrap();
                                     Ok(response)
                                 })
@@ -85,7 +86,7 @@ impl Onebot {
                                     let value = sender.clone();
                                     async move {
                                         println!("Received message: {:?}", &message);
-                                        value.send(Default::default());
+                                        value.send(Default::default()).unwrap();
                                     }
                                 })
                                 .await;

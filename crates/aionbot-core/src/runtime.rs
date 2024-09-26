@@ -95,5 +95,5 @@ pub trait Runtime {
         async move { Ok(()) }
     }
 
-    fn run(&self) -> impl std::future::Future<Output = Result<()>> + Send;
+    fn run(&mut self) -> impl std::future::Future<Output = Result<()>> + Send;
 }

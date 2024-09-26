@@ -27,6 +27,7 @@ impl Adapter for aionbot_core::event::Event {
 pub struct OnebotRuntime {
     onebot: Option<Arc<Onebot>>,
     state: Arc<StateManager>,
+    receiver: Option<Receiver<Event>>,
 }
 
 impl Default for OnebotRuntime {
@@ -34,6 +35,7 @@ impl Default for OnebotRuntime {
         Self {
             onebot: None,
             state: Arc::new(StateManager::default()),
+            receiver: None,
         }
     }
 }
@@ -60,15 +62,12 @@ impl Runtime for OnebotRuntime {
     }
 
     async fn finalize(&mut self) -> Result<()> {
-        let mut rx = self.onebot.as_ref().cloned().unwrap().subscribe().await;
-        loop {
-            let event = rx.recv().await?;
-            println!("Received event: {:?}", event);
-        }
+        self.receiver = Some(self.onebot.as_ref().cloned().unwrap().subscribe().await);
         Ok(())
     }
 
-    async fn run(&self) -> Result<()> {
+    async fn run(&mut self) -> Result<()> {
+        self.receiver.as_mut().unwrap().recv().await?;
         Ok(())
     }
 }
