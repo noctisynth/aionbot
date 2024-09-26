@@ -51,13 +51,29 @@ where
         self
     }
 
-    pub async fn run(&mut self) -> Result<()> {
+    async fn prepare(&mut self) -> Result<()> {
         self.runtime.prepare().await?;
         if let Some(setup) = self.setup.take() {
             self.runtime.setup(setup);
         }
         self.runtime.finalize().await?;
-        self.runtime.run().await
+        Ok(())
+    }
+
+    pub async fn run(&mut self) -> Result<()> {
+        self.prepare().await?;
+
+        loop {
+            match self.runtime.run().await? {
+                RuntimeStatus::Pending => {}
+                RuntimeStatus::Exit => break,
+                RuntimeStatus::Next => {}
+                RuntimeStatus::Restart => {
+                    self.runtime.prepare().await?;
+                }
+            }
+        }
+        Ok(())
     }
 }
 
@@ -95,5 +111,12 @@ pub trait Runtime {
         async move { Ok(()) }
     }
 
-    fn run(&self) -> impl std::future::Future<Output = Result<()>> + Send;
+    fn run(&self) -> impl std::future::Future<Output = Result<RuntimeStatus>> + Send;
+}
+
+pub enum RuntimeStatus {
+    Pending,
+    Exit,
+    Next,
+    Restart,
 }
