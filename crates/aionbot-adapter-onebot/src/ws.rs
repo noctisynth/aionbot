@@ -12,14 +12,24 @@ pub struct Config {
     host: String,
     port: u16,
     path: String,
-    access_token: String,
+    access_token: Option<String>,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            host: "127.0.0.1".to_string(),
+            port: 6700,
+            path: "/onebot".to_string(),
+            access_token: None,
+        }
+    }
 }
 
 #[derive(Default)]
 pub struct Onebot {
     listen_handle: Mutex<Option<tokio::task::JoinHandle<Result<()>>>>,
     bot_handles: Mutex<Vec<tokio::task::JoinHandle<Result<()>>>>,
-    // stream: WebSocketStream<tokio_tungstenite::MaybeTlsStream<TcpStream>>,
 }
 
 impl Onebot {
@@ -27,28 +37,25 @@ impl Onebot {
         Arc::new(Self::default())
     }
 
-    pub async fn listen(self: Arc<Self>, config: Config) -> Result<()> {
+    pub async fn listen(self: Arc<Self>, config: Config) -> Result<Arc<Self>> {
         let onebot = self.clone();
 
-        let tcp_listener = TcpListener::bind(&config.host).await?;
+        let tcp_listener = TcpListener::bind(format!("{}:{}", config.host, config.port)).await?;
 
         self.listen_handle
             .lock()
             .await
             .replace(tokio::spawn(async move {
-                let url = format!(
-                    "{}:{}/{}",
-                    config.host,
-                    config.port,
-                    config.path.trim_start_matches("/")
-                );
                 while let Ok((stream, _)) = tcp_listener.accept().await {
-                    // onebot.bot_handles.lock().await.push(
                     onebot.bot_handles.lock().await.push(tokio::spawn(async {
-                        stream.set_nodelay(true).unwrap(); // TODO: No delay?
                         let ws_stream =
                             accept_hdr_async(stream, |req: &Request, response: Response| {
-                                req.headers().iter();Ok(response.clone())
+                                let headers = req.headers();
+                                let bot_id = headers
+                                    .get("X-Self-ID")
+                                    .map(|id| id.to_str().unwrap().to_string())
+                                    .unwrap();
+                                Ok(response)
                             })
                             .await?;
                         ws_stream.for_each(|message| async {}).await;
@@ -57,7 +64,7 @@ impl Onebot {
                 }
                 Ok(())
             }));
-        Ok(())
+        Ok(self)
     }
 
     // pub async fn close(&mut self) {

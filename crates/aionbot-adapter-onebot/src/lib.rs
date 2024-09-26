@@ -45,7 +45,7 @@ impl Runtime for OnebotRuntime {
 
     async fn prepare(&mut self) -> Result<()> {
         println!("Preparing Onebot runtime");
-        
+        let onebot = ws::Onebot::new().listen(Default::default()).await?;
         println!("Onebot runtime prepared");
         Ok(())
     }
