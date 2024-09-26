@@ -57,6 +57,7 @@ dependencies = [
  "regex",
  "serde_json",
  "state",
+ "tokio",
 ]
 
 [[package]]

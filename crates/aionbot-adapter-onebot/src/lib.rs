@@ -65,7 +65,7 @@ impl Runtime for OnebotRuntime {
     }
 
     async fn run(&mut self) -> Result<RuntimeStatus> {
-        self.receiver.as_mut().unwrap().recv().await?;
-        Ok(RuntimeStatus::Exit)
+        let event = self.receiver.as_mut().unwrap().recv().await?;
+        Ok(RuntimeStatus::Event(event))
     }
 }
