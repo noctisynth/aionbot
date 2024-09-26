@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use aionbot_core::runtime::{Runtime, StateManager};
+use aionbot_core::runtime::{Runtime, RuntimeStatus, StateManager};
 use anyhow::Result;
 use onebot_v11::connect::ws_reverse::ReverseWsConnect;
 
@@ -55,7 +55,7 @@ impl Runtime for OnebotRuntime {
         Ok(())
     }
 
-    async fn run(&self) -> Result<()> {
-        Ok(())
+    async fn run(&self) -> Result<RuntimeStatus> {
+        Ok(RuntimeStatus::Exit)
     }
 }
