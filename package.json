@@ -1,0 +1,48 @@
+{
+    "gitSiteUrl": "https://www.github.com/jbolda/covector/",
+    "additionalBumpTypes": [
+        "housekeeping"
+    ],
+    "pkgManagers": {
+        "javascript": {
+            "version": true,
+            "getPublishedVersion": "npm view ${ pkg.pkg } version",
+            "publish": "npm publish --access public",
+            "postpublish": [
+                "git tag ${ pkg.pkg }-v${ pkgFile.version }",
+                "git push --tags"
+            ]
+        }
+    },
+    "packages": {
+        "covector": {
+            "path": "./packages/covector",
+            "manager": "javascript",
+            "dependencies": [
+                "@covector/apply",
+                "@covector/assemble",
+                "@covector/files",
+                "@covector/changelog"
+            ]
+        },
+        "@covector/apply": {
+            "path": "./packages/apply",
+            "manager": "javascript"
+        },
+        "@covector/assemble": {
+            "path": "./packages/assemble",
+            "manager": "javascript"
+        },
+        "@covector/files": {
+            "path": "./packages/files",
+            "manager": "javascript"
+        },
+        "@covector/changelog": {
+            "path": "./packages/changelog",
+            "manager": "javascript",
+            "dependencies": [
+                "@covector/files"
+            ]
+        }
+    }
+}
