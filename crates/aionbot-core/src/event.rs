@@ -2,6 +2,7 @@ use core::fmt;
 
 use serde_json::Value;
 
+#[derive(Debug, Clone)]
 pub struct MessageSegment {
     pub text: String,
     pub r#type: String,
@@ -25,7 +26,7 @@ impl From<String> for MessageSegment {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Debug, Clone)]
 pub struct Message {
     pub entity: Option<String>,
     pub segments: Vec<MessageSegment>,
@@ -40,7 +41,7 @@ impl fmt::Display for Message {
     }
 }
 
-#[derive(Default)]
+#[derive(Default, Debug, Clone)]
 pub struct Event {
     pub plain_data: Message,
     pub user_id: String,

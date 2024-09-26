@@ -4,8 +4,13 @@ pub mod ws;
 
 use std::sync::Arc;
 
-use aionbot_core::runtime::{Runtime, StateManager};
+use aionbot_core::{
+    event::Event,
+    runtime::{Runtime, StateManager},
+};
 use anyhow::Result;
+use tokio::sync::broadcast::Receiver;
+use ws::Onebot;
 
 pub trait Adapter {
     fn reply(&self, message: &str) -> impl std::future::Future<Output = Result<()>> + Send;
@@ -20,14 +25,14 @@ impl Adapter for aionbot_core::event::Event {
 }
 
 pub struct OnebotRuntime {
-    // connect: Option<Arc<ReverseWsConnect>>,
+    onebot: Option<Arc<Onebot>>,
     state: Arc<StateManager>,
 }
 
 impl Default for OnebotRuntime {
     fn default() -> Self {
         Self {
-            // connect: None,
+            onebot: None,
             state: Arc::new(StateManager::default()),
         }
     }
@@ -45,7 +50,7 @@ impl Runtime for OnebotRuntime {
 
     async fn prepare(&mut self) -> Result<()> {
         println!("Preparing Onebot runtime");
-        let onebot = ws::Onebot::new().listen(Default::default()).await?;
+        self.onebot = Some(ws::Onebot::new().listen(Default::default()).await?);
         println!("Onebot runtime prepared");
         Ok(())
     }
@@ -55,7 +60,11 @@ impl Runtime for OnebotRuntime {
     }
 
     async fn finalize(&mut self) -> Result<()> {
-        // self.connect.as_mut().unwrap().subscribe().await;
+        let mut rx = self.onebot.as_ref().cloned().unwrap().subscribe().await;
+        loop {
+            let event = rx.recv().await?;
+            println!("Received event: {:?}", event);
+        }
         Ok(())
     }
 
