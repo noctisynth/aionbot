@@ -3,7 +3,7 @@ use std::sync::Arc;
 use anyhow::Result;
 use state::TypeMap;
 
-use crate::{entry::Entry, handler::Handler, types::SetupFn};
+use crate::{entry::Entry, event::Event, handler::Handler, types::SetupFn};
 
 #[derive(Default)]
 pub struct StateManager(pub(crate) TypeMap!(Send + Sync));
@@ -65,11 +65,22 @@ where
 
         loop {
             match self.runtime.run().await? {
-                RuntimeStatus::Pending => {}
                 RuntimeStatus::Exit => break,
                 RuntimeStatus::Next => {}
                 RuntimeStatus::Restart => {
                     self.runtime.prepare().await?;
+                }
+                RuntimeStatus::Event(event) => {
+                    let handler = self.handler.clone();
+                    tokio::spawn(async move {
+                        handler
+                            .as_ref()
+                            .clone()
+                            .unwrap()
+                            .input(&Arc::new(event))
+                            .await
+                            .unwrap();
+                    });
                 }
             }
         }
@@ -111,12 +122,12 @@ pub trait Runtime {
         async move { Ok(()) }
     }
 
-    fn run(&self) -> impl std::future::Future<Output = Result<RuntimeStatus>> + Send;
+    fn run(&mut self) -> impl std::future::Future<Output = Result<RuntimeStatus>> + Send;
 }
 
 pub enum RuntimeStatus {
-    Pending,
-    Exit,
     Next,
+    Exit,
     Restart,
+    Event(Event),
 }
