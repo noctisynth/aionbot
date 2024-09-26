@@ -4,10 +4,8 @@ pub mod ws;
 
 use std::sync::Arc;
 
-use aionbot_core::{
-    event::Event,
-    runtime::{Runtime, StateManager},
-};
+use aionbot_core::event::Event;
+use aionbot_core::runtime::{Runtime, RuntimeStatus, StateManager};
 use anyhow::Result;
 use tokio::sync::broadcast::Receiver;
 use ws::Onebot;
@@ -66,8 +64,8 @@ impl Runtime for OnebotRuntime {
         Ok(())
     }
 
-    async fn run(&mut self) -> Result<()> {
+    async fn run(&mut self) -> Result<RuntimeStatus> {
         self.receiver.as_mut().unwrap().recv().await?;
-        Ok(())
+        Ok(RuntimeStatus::Exit)
     }
 }
