@@ -63,12 +63,7 @@ impl<T: Eq + Hash + Clone> EventQueue<T> {
     }
 
     pub fn pop(&mut self) -> Option<T> {
-        while let Some(EventEntry {
-            priority: _,
-            counter: _,
-            item,
-        }) = self.heap.pop()
-        {
+        while let Some(EventEntry { item, .. }) = self.heap.pop() {
             if let Some(Some(_)) = self.entry_finder.remove(&item) {
                 self.order_queue.retain(|x| x != &item);
                 return Some(item);
