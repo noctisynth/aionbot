@@ -1,6 +1,9 @@
 use crate::event::Event;
 
-pub trait Router {
+pub trait Router
+where
+    Self: Send + Sync,
+{
     fn matches(&self, event: &Event) -> bool;
 }
 
