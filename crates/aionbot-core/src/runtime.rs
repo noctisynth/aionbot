@@ -24,6 +24,10 @@ impl StateManager {
     pub fn try_get<T: Send + Sync + 'static>(&self) -> Option<&T> {
         self.0.try_get::<T>()
     }
+
+    pub fn get_owned<T: Clone + Send + Sync + 'static>(&self) -> T {
+        self.0.get::<T>().to_owned()
+    }
 }
 
 pub struct Builder<R: Runtime + Default> {
@@ -35,7 +39,7 @@ pub struct Builder<R: Runtime + Default> {
 
 impl<R> Builder<R>
 where
-    R: Runtime + Default + Send + 'static,
+    R: Runtime + Default + Send,
 {
     pub fn setup(&mut self, setup: SetupFn<R>) {
         self.setup = Some(setup);
