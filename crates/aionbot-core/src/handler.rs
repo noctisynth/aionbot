@@ -18,7 +18,7 @@ impl Handler {
         Self { entries: vec![] }
     }
 
-    pub async fn input(&self, event: &Arc<Event>) -> Result<()> {
+    pub async fn input(&self, event: &Arc<Box<dyn Event>>) -> Result<()> {
         let mut queue = self.matches(event);
         while let Some(entry) = queue.pop() {
             entry.get_handler()(event.clone()).await?;
@@ -27,7 +27,7 @@ impl Handler {
     }
 
     #[inline]
-    pub fn matches(&self, event: &Arc<Event>) -> EventQueue<Entry> {
+    pub fn matches(&self, event: &Box<dyn Event>) -> EventQueue<Entry> {
         let mut queue = EventQueue::new();
         for entry in self.entries.iter() {
             if entry.get_router().matches(event) {
