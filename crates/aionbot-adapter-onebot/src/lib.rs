@@ -1,12 +1,13 @@
 pub extern crate aionbot_core;
 
+pub mod event;
 pub mod ws;
 
 use std::sync::Arc;
 
-use aionbot_core::event::Event;
 use aionbot_core::runtime::{Runtime, RuntimeStatus, StateManager};
 use anyhow::Result;
+use event::OnebotEvent;
 use tokio::sync::broadcast::Receiver;
 use ws::Onebot;
 
@@ -25,7 +26,7 @@ impl Adapter for dyn aionbot_core::event::Event {
 pub struct OnebotRuntime {
     onebot: Option<Arc<Onebot>>,
     state: Arc<StateManager>,
-    receiver: Option<Receiver<Event>>,
+    receiver: Option<Receiver<Box<OnebotEvent>>>,
 }
 
 impl Default for OnebotRuntime {

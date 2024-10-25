@@ -133,5 +133,5 @@ pub enum RuntimeStatus {
     Next,
     Exit,
     Restart,
-    Event(Event),
+    Event(Box<dyn Event>),
 }

@@ -1,13 +1,14 @@
 use std::sync::Arc;
 
-use aionbot_core::event::Event;
 use anyhow::Result;
 use futures_util::StreamExt;
-use tokio::{net::TcpListener, sync::Mutex};
+use tokio::{net::TcpListener, sync::{broadcast, Mutex}};
 use tokio_tungstenite::{
     accept_hdr_async,
     tungstenite::handshake::server::{Request, Response},
 };
+
+use crate::event::OnebotEvent;
 
 pub struct Config {
     host: String,
@@ -28,14 +29,14 @@ impl Default for Config {
 }
 
 pub struct Onebot {
-    sender: tokio::sync::broadcast::Sender<Event>,
+    sender: tokio::sync::broadcast::Sender<Box<OnebotEvent>>,
     listen_handle: Mutex<Option<tokio::task::JoinHandle<Result<()>>>>,
     bot_handles: Mutex<Vec<tokio::task::JoinHandle<Result<()>>>>,
 }
 
 impl Default for Onebot {
     fn default() -> Self {
-        let (tx, _) = tokio::sync::broadcast::channel::<Event>(1024);
+        let (tx, _) = broadcast::channel::<Box<OnebotEvent>>(1024);
         Self {
             sender: tx,
             listen_handle: Mutex::new(None),
@@ -98,7 +99,7 @@ impl Onebot {
         Ok(self)
     }
 
-    pub async fn subscribe(self: Arc<Self>) -> tokio::sync::broadcast::Receiver<Event> {
+    pub async fn subscribe(self: Arc<Self>) -> broadcast::Receiver<Box<OnebotEvent>> {
         self.sender.subscribe()
     }
 
