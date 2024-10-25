@@ -35,11 +35,11 @@ fn test_register_router() {
     let event: Box<dyn Event> = Box::new(ConcreteEvent {
         user_id: "test".to_string(),
         channel_id: "test".to_string(),
-        plain_data: "test".to_string(),
+        plain_data: "test_router".to_string(),
     });
     let entry = test_register_fn();
     assert!(entry.priority == 0);
-    assert!(entry.router.matches(&event));
+    assert!(entry.router.matches(&*event));
 }
 
 #[test]
@@ -47,9 +47,9 @@ fn test_register_router_priority() {
     let event: Box<dyn Event> = Box::new(ConcreteEvent {
         user_id: "test".to_string(),
         channel_id: "test".to_string(),
-        plain_data: "test".to_string(),
+        plain_data: "test_router".to_string(),
     });
     let entry = test_register_fn_priority();
     assert!(entry.priority == 1);
-    assert!(entry.router.matches(&event));
+    assert!(entry.router.matches(&*event));
 }

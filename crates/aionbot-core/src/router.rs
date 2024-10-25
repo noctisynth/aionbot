@@ -1,11 +1,11 @@
 use crate::event::Event;
 
 pub trait Router: Send + Sync {
-    fn matches(&self, event: &Box<dyn Event>) -> bool;
+    fn matches(&self, event: &dyn Event) -> bool;
 }
 
 impl Router for &str {
-    fn matches(&self, event: &Box<dyn Event>) -> bool {
+    fn matches(&self, event: &dyn Event) -> bool {
         if let Ok(val) = event.get_plain_data().downcast::<String>() {
             &*val == self
         } else {
@@ -25,7 +25,7 @@ impl<T> Router for ExactMatchRouter<T>
 where
     T: Send + Sync + PartialEq + 'static,
 {
-    fn matches(&self, event: &Box<dyn Event>) -> bool {
+    fn matches(&self, event: &dyn Event) -> bool {
         if let Ok(val) = event.get_plain_data().downcast::<T>() {
             *val == self.pattern
         } else {
@@ -47,7 +47,7 @@ where
 pub struct AnyRouter;
 
 impl Router for AnyRouter {
-    fn matches(&self, _event: &Box<dyn Event>) -> bool {
+    fn matches(&self, _event: &dyn Event) -> bool {
         true
     }
 }
