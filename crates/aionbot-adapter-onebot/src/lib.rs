@@ -1,5 +1,6 @@
 pub extern crate aionbot_core;
 
+pub mod bot;
 pub mod event;
 pub mod models;
 pub mod ws;

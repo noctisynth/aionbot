@@ -3,7 +3,7 @@ use std::sync::Arc;
 use aionbot_core::event::Event;
 use anyhow::{anyhow, Result};
 
-use crate::{models::MessageEvent, ws::Bot};
+use crate::{bot::Bot, models::MessageEvent};
 
 #[derive(Clone, Debug)]
 pub struct OnebotEvent {
