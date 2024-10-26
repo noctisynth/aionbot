@@ -1,11 +1,20 @@
-use std::sync::Arc;
+use std::{
+    cell::UnsafeCell,
+    collections::HashMap,
+    sync::{Arc, RwLock},
+};
 
 use anyhow::Result;
 use futures_util::StreamExt;
-use tokio::{net::TcpListener, sync::{broadcast, Mutex}};
+use tokio::{
+    net::{TcpListener, TcpStream},
+    sync::{broadcast, Mutex},
+    task::JoinHandle,
+};
 use tokio_tungstenite::{
     accept_hdr_async,
     tungstenite::handshake::server::{Request, Response},
+    WebSocketStream,
 };
 
 use crate::event::OnebotEvent;
@@ -28,10 +37,57 @@ impl Default for Config {
     }
 }
 
+pub struct BotInstance {
+    pub id: String,
+    pub ws_stream: Option<WebSocketStream<TcpStream>>,
+    sender: broadcast::Sender<Box<OnebotEvent>>,
+}
+
+pub struct Bot {
+    inner: UnsafeCell<BotInstance>,
+}
+
+unsafe impl Send for Bot {}
+unsafe impl Sync for Bot {}
+
+impl Bot {
+    pub fn new(sender: broadcast::Sender<Box<OnebotEvent>>) -> Arc<Self> {
+        Arc::new(Self {
+            inner: UnsafeCell::new(BotInstance {
+                id: String::new(),
+                ws_stream: None,
+                sender,
+            }),
+        })
+    }
+
+    pub fn id(&self) -> &str {
+        unsafe { &(*self.inner.get()).id }
+    }
+
+    pub fn set_id(&self, id: String) {
+        unsafe { (*self.inner.get()).id = id }
+    }
+    pub fn set_ws_stream(&self, ws_stream: WebSocketStream<TcpStream>) {
+        unsafe { (*self.inner.get()).ws_stream = Some(ws_stream) }
+    }
+
+    pub async fn listen(&self) {
+        let bot = unsafe { &mut (*self.inner.get()) };
+        if let Some(ws_stream) = &mut bot.ws_stream {
+            ws_stream
+                .for_each(|_message| async {
+                    bot.sender.send(Box::new(OnebotEvent::default())).unwrap();
+                })
+                .await;
+        };
+    }
+}
+
 pub struct Onebot {
-    sender: tokio::sync::broadcast::Sender<Box<OnebotEvent>>,
-    listen_handle: Mutex<Option<tokio::task::JoinHandle<Result<()>>>>,
-    bot_handles: Mutex<Vec<tokio::task::JoinHandle<Result<()>>>>,
+    sender: broadcast::Sender<Box<OnebotEvent>>,
+    listen_handle: Mutex<Option<JoinHandle<Result<()>>>>,
+    bots: RwLock<HashMap<String, Arc<Bot>>>,
 }
 
 impl Default for Onebot {
@@ -40,7 +96,7 @@ impl Default for Onebot {
         Self {
             sender: tx,
             listen_handle: Mutex::new(None),
-            bot_handles: Mutex::new(vec![]),
+            bots: Default::default(),
         }
     }
 }
@@ -61,38 +117,22 @@ impl Onebot {
             .lock()
             .await
             .replace(tokio::spawn(async move {
-                println!("Starting bot listening loop");
                 while let Ok((stream, _)) = tcp_listener.accept().await {
-                    println!("New connection found.");
-                    let sender = onebot.sender.clone();
-                    onebot
-                        .bot_handles
-                        .lock()
-                        .await
-                        .push(tokio::spawn(async move {
-                            let ws_stream =
-                                accept_hdr_async(stream, |req: &Request, response: Response| {
-                                    let headers = req.headers();
-                                    let bot_id = headers
-                                        .get("X-Self-ID")
-                                        .map(|id| id.to_str().unwrap().to_string())
-                                        .unwrap_or_default();
-                                    println!("New bot connection: {}", bot_id);
-                                    sender.send(Default::default()).unwrap();
-                                    Ok(response)
-                                })
-                                .await?;
-                            ws_stream
-                                .for_each(|message| {
-                                    let value = sender.clone();
-                                    async move {
-                                        println!("Received message: {:?}", &message);
-                                        value.send(Default::default()).unwrap();
-                                    }
-                                })
-                                .await;
-                            Ok(())
-                        }));
+                    let bot = Bot::new(onebot.sender.clone());
+                    let ws_stream =
+                        accept_hdr_async(stream, |req: &Request, response: Response| {
+                            let headers = req.headers();
+                            let bot_id = headers
+                                .get("X-Self-ID")
+                                .map(|id| id.to_str().unwrap().to_string())
+                                .unwrap_or_default();
+                            println!("New bot connection: {}", bot_id);
+                            bot.set_id(bot_id.to_string());
+                            onebot.bots.write().unwrap().insert(bot_id, bot.clone());
+                            Ok(response)
+                        })
+                        .await?;
+                    bot.set_ws_stream(ws_stream);
                 }
                 Ok(())
             }));
@@ -103,9 +143,9 @@ impl Onebot {
         self.sender.subscribe()
     }
 
-    // pub async fn close(&mut self) {
-    //     if let Some(handle) = self.listen_handle.take() {
-    //         handle.abort();
-    //     }
-    // }
+    pub async fn close(&mut self) {
+        if let Some(handle) = self.listen_handle.lock().await.take() {
+            handle.abort();
+        }
+    }
 }

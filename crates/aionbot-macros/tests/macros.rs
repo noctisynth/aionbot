@@ -18,6 +18,14 @@ impl Event for ConcreteEvent {
     fn get_plain_data(&self) -> Box<dyn std::any::Any> {
         Box::new(self.plain_data.clone())
     }
+
+    fn get_content(&self) -> Box<dyn std::any::Any> {
+        todo!()
+    }
+    
+    fn get_type(&self) -> &str {
+        todo!()
+    }
 }
 
 #[register(router = "test_router")]
