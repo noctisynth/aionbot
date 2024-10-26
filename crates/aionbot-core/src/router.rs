@@ -6,7 +6,7 @@ pub trait Router: Send + Sync {
 
 impl Router for &str {
     fn matches(&self, event: &dyn Event) -> bool {
-        if let Ok(val) = event.get_plain_data().downcast::<&str>() {
+        if let Ok(val) = event.get_content().downcast::<&str>() {
             &*val == self
         } else {
             false
