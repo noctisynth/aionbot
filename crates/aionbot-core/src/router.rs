@@ -6,7 +6,7 @@ pub trait Router: Send + Sync {
 
 impl Router for &str {
     fn matches(&self, event: &dyn Event) -> bool {
-        if let Ok(val) = event.get_content().downcast::<&str>() {
+        if let Ok(val) = event.content().downcast::<&str>() {
             &*val == self
         } else {
             false
@@ -26,7 +26,7 @@ where
     T: Send + Sync + PartialEq + 'static,
 {
     fn matches(&self, event: &dyn Event) -> bool {
-        if let Ok(val) = event.get_content().downcast::<T>() {
+        if let Ok(val) = event.content().downcast::<T>() {
             *val == self.pattern
         } else {
             false
@@ -52,7 +52,7 @@ where
 
 impl Router for StartsWithRouter<&str> {
     fn matches(&self, event: &dyn Event) -> bool {
-        if let Ok(val) = event.get_content().downcast::<&str>() {
+        if let Ok(val) = event.content().downcast::<&str>() {
             val.starts_with(self.pattern)
         } else {
             false

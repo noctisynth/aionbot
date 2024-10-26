@@ -12,7 +12,7 @@ struct State {}
 pub async fn hello_world(event: Arc<Box<dyn Event>>) -> Result<String> {
     println!(
         "Event content: {}",
-        event.get_content().downcast::<&str>().unwrap()
+        event.content().downcast::<&str>().unwrap()
     );
     event.reply("Hello, world!").await?;
     Ok(())
