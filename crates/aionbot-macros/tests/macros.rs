@@ -2,21 +2,27 @@ use aionbot_macros::register;
 
 struct ConcreteEvent {
     plain_data: String,
-    user_id: String,
-    channel_id: String,
 }
 
 impl Event for ConcreteEvent {
     fn get_emitter_id(&self) -> &str {
-        &self.user_id
+        unimplemented!()
     }
 
     fn get_channel_id(&self) -> &str {
-        &self.channel_id
+        unimplemented!()
     }
 
     fn get_plain_data(&self) -> Box<dyn std::any::Any> {
-        Box::new(self.plain_data.clone())
+        unimplemented!()
+    }
+
+    fn get_content(&self) -> Box<dyn std::any::Any> {
+        Box::new(self.plain_data.clone().leak() as &str)
+    }
+
+    fn get_type(&self) -> &str {
+        unimplemented!()
     }
 }
 
@@ -33,8 +39,6 @@ pub fn test_register_fn_priority(_event: Arc<Box<dyn Event>>) -> Result<()> {
 #[test]
 fn test_register_router() {
     let event: Box<dyn Event> = Box::new(ConcreteEvent {
-        user_id: "test".to_string(),
-        channel_id: "test".to_string(),
         plain_data: "test_router".to_string(),
     });
     let entry = test_register_fn();
@@ -45,8 +49,6 @@ fn test_register_router() {
 #[test]
 fn test_register_router_priority() {
     let event: Box<dyn Event> = Box::new(ConcreteEvent {
-        user_id: "test".to_string(),
-        channel_id: "test".to_string(),
         plain_data: "test_router".to_string(),
     });
     let entry = test_register_fn_priority();

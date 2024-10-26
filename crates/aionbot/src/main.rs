@@ -5,9 +5,13 @@ use aionbot_macros::register;
 
 struct State {}
 
-#[register(router = ExactMatchRouter::new("hello"))]
+#[register(router = ExactMatchRouter::new("/hello"))]
 pub async fn hello_world(event: Arc<Box<dyn Event>>) -> Result<String> {
     // println!("{}", &event.get_plain_data());
+    println!(
+        "Event content: {}",
+        event.get_content().downcast::<&str>().unwrap()
+    );
     event.reply("Hello, world!").await?;
     Ok(())
 }
