@@ -74,7 +74,7 @@ impl Runtime for OnebotRuntime {
     async fn run(&mut self) -> Result<RuntimeStatus> {
         log::debug!("Waiting for Onebot runtime event loop...");
         let event = self.receiver.as_mut().unwrap().recv().await?;
-        log::debug!("Received Onebot event of type [{}].", event.get_type());
+        log::debug!("Received Onebot event of type [{}].", event.event_type());
         Ok(RuntimeStatus::Event(event))
     }
 }

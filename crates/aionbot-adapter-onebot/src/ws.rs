@@ -99,7 +99,9 @@ impl Bot {
                             plain_data: plain_data.clone(),
                             bot: self.clone(),
                         };
-                        bot.sender.send(Box::new(event)).unwrap();
+                        if let Err(e) = bot.sender.send(Box::new(event)) {
+                            log::warn!("Error sending event: {}", e);
+                        }
                     }
                 })
                 .await;
@@ -161,8 +163,14 @@ impl Onebot {
         let onebot = self.clone();
 
         let bind_addr = format!("{}:{}", config.host, config.port);
-        log::debug!("Trying to bind to {}.", bind_addr);
-        let tcp_listener = TcpListener::bind(&bind_addr).await?;
+        log::debug!("Trying to bind on {}.", bind_addr);
+        let tcp_listener = match TcpListener::bind(&bind_addr).await {
+            Ok(listener) => listener,
+            Err(e) => {
+                log::error!("Error binding on {}: {}", bind_addr, e);
+                return Err(e.into());
+            }
+        };
         log::info!("Listening on {}.", bind_addr);
 
         self.listen_handle

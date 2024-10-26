@@ -75,6 +75,7 @@ where
                 RuntimeStatus::Exit => break,
                 RuntimeStatus::Next => {}
                 RuntimeStatus::Restart => {
+                    log::info!("Restarting bot runtime...");
                     self.runtime.prepare().await?;
                 }
                 RuntimeStatus::Event(event) => {
