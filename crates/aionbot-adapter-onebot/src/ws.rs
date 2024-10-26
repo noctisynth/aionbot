@@ -83,14 +83,15 @@ impl Bot {
     pub async fn listen(self: Arc<Self>) {
         let bot = unsafe { &mut (*self.inner.get()) };
         if let Some(ws_stream) = &mut bot.ws_stream {
+            log::info!("Starting listening for messages from bot {}...", bot.id);
             ws_stream
                 .for_each(|message| async {
                     if let Ok(Message::Text(message)) = message {
-                        println!("Received message: {}", message);
+                        log::debug!("Received event message: {}", message);
                         let plain_data: MessageEvent = match serde_json::from_str(&message) {
                             Ok(data) => data,
                             Err(e) => {
-                                eprintln!("Error: {}", e);
+                                log::warn!("Error deserializing message: {}", e);
                                 return;
                             }
                         };
@@ -160,8 +161,9 @@ impl Onebot {
         let onebot = self.clone();
 
         let bind_addr = format!("{}:{}", config.host, config.port);
+        log::debug!("Trying to bind to {}.", bind_addr);
         let tcp_listener = TcpListener::bind(&bind_addr).await?;
-        println!("Listening on {}", bind_addr);
+        log::info!("Listening on {}.", bind_addr);
 
         self.listen_handle
             .lock()
@@ -176,7 +178,7 @@ impl Onebot {
                                 .get("X-Self-ID")
                                 .map(|id| id.to_str().unwrap().to_string())
                                 .unwrap_or_default();
-                            println!("New bot connection: {}", bot_id);
+                            log::info!("New bot connected with ID: {}.", bot_id);
                             bot.set_id(bot_id.to_string());
                             onebot.bots.write().unwrap().insert(bot_id, bot.clone());
                             Ok(response)

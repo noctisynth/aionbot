@@ -56,10 +56,13 @@ where
     }
 
     async fn prepare(&mut self) -> Result<()> {
+        log::debug!("Preparing for runtime...");
         self.runtime.prepare().await?;
         if let Some(setup) = self.setup.take() {
+            log::debug!("Setting up runtime...");
             self.runtime.setup(setup);
         }
+        log::debug!("Finalizing runtime...");
         self.runtime.finalize().await?;
         Ok(())
     }
@@ -77,13 +80,15 @@ where
                 RuntimeStatus::Event(event) => {
                     let handler = self.handler.clone();
                     tokio::spawn(async move {
-                        handler
+                        if let Err(e) = handler
                             .as_ref()
                             .clone()
                             .unwrap()
                             .input(&Arc::new(event))
                             .await
-                            .unwrap();
+                        {
+                            log::error!("Error handling event: {}", e);
+                        };
                     });
                 }
             }

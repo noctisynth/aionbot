@@ -16,7 +16,6 @@ impl Event for OnebotEvent {
     }
 
     fn get_content(&self) -> Box<dyn std::any::Any> {
-        println!("Event::get_content");
         let content = self
             .plain_data
             .message
@@ -24,7 +23,6 @@ impl Event for OnebotEvent {
             .map(|segment| segment.data.text.clone())
             .collect::<Vec<String>>();
         let result: &str = content.join("").leak();
-        println!("Event::get_content result: {}", result);
         Box::new(result)
     }
 
