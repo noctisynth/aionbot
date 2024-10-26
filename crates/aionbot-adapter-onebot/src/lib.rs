@@ -1,25 +1,31 @@
 pub extern crate aionbot_core;
 
 pub mod event;
+pub mod models;
 pub mod ws;
 
-use std::sync::Arc;
+use std::{any::Any, sync::Arc};
 
-use aionbot_core::runtime::{Runtime, RuntimeStatus, StateManager};
+use aionbot_core::{
+    event::Event,
+    runtime::{Runtime, RuntimeStatus, StateManager},
+};
 use anyhow::Result;
 use event::OnebotEvent;
 use tokio::sync::broadcast::Receiver;
 use ws::Onebot;
 
-pub trait Adapter {
+pub trait Adapter: Any {
     fn reply(&self, message: &str) -> impl std::future::Future<Output = Result<()>> + Send;
 }
 
-impl Adapter for dyn aionbot_core::event::Event {
+impl Adapter for dyn Event {
     async fn reply(&self, message: &str) -> Result<()> {
-        let _ = message;
-        // let ws = onebot_v11::connect::ws_reverse::ReverseWsConnect::new(config);
-        unimplemented!()
+        let event = unsafe { (self as *const dyn Event as *mut OnebotEvent).as_mut() }.unwrap();
+        let bot = event.bot.clone();
+
+        bot.send(event, message).await;
+        Ok(())
     }
 }
 

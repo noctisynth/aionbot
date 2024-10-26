@@ -13,4 +13,7 @@ pub trait Event: Any + Send + Sync {
     fn get_emitter_id(&self) -> &str;
     /// Get the channel ID of the event.
     fn get_channel_id(&self) -> &str;
+    fn get_plain_text(&self) -> &str {
+        *self.get_content().downcast::<&str>().unwrap()
+    }
 }

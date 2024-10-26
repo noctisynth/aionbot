@@ -82,6 +82,10 @@ impl<T: Eq + Hash + Clone> EventQueue<T> {
     pub fn is_empty(&self) -> bool {
         self.heap.is_empty()
     }
+
+    pub fn len(&self) -> usize {
+        self.heap.len()
+    }
 }
 
 impl<T: Eq + Hash + Clone> Default for EventQueue<T> {

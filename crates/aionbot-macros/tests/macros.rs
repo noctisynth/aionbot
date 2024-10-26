@@ -22,7 +22,7 @@ impl Event for ConcreteEvent {
     fn get_content(&self) -> Box<dyn std::any::Any> {
         todo!()
     }
-    
+
     fn get_type(&self) -> &str {
         todo!()
     }
