@@ -39,7 +39,6 @@ impl Event for OnebotEvent {
     fn get_channel_id(&self) -> &str {
         self.plain_data
             .group_id
-            .clone()
             .expect("Channel ID is not set, this event is most likely a private message")
             .to_string()
             .leak()
