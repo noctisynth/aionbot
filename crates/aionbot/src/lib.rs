@@ -1,5 +1,5 @@
-pub use aionbot_macros::register;
 pub use aionbot_core::prelude::*;
+pub use aionbot_macros::register;
 
 use anyhow::Result;
 use colored::Colorize;
