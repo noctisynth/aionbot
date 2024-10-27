@@ -51,4 +51,5 @@ pub trait Event: Any + Send + Sync {
             message.to_string()
         )
     }
+    fn as_any(&self) -> &dyn Any;
 }
