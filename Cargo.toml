@@ -7,5 +7,6 @@ authors = ["fu050409 <fu050409@163.com>"]
 description = "Rust-based high concurrency cross platform bot runtime"
 edition = "2021"
 homepage = "https://github.com/noctisynth/aionbot"
-repository = "https://github.com/noctisynth/aionbot"
 readme = "README.md"
+license = "AGPL-3.0-only"
+repository = "https://github.com/noctisynth/aionbot"
