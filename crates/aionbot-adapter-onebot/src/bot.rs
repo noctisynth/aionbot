@@ -4,8 +4,10 @@ use futures_util::{SinkExt, StreamExt};
 use tokio::{net::TcpStream, sync::broadcast};
 use tokio_tungstenite::{tungstenite::Message, WebSocketStream};
 
-use crate::{event::OnebotEvent, models::{Action, ActionParams, MessageEvent}};
-
+use crate::{
+    event::OnebotEvent,
+    models::{Action, ActionParams, MessageEvent, MinimalEvent},
+};
 
 #[derive(Debug)]
 pub struct BotInstance {
@@ -52,20 +54,37 @@ impl Bot {
                 .for_each(|message| async {
                     if let Ok(Message::Text(message)) = message {
                         log::debug!("Received event message: {}", message);
-                        let plain_data: MessageEvent = match serde_json::from_str(&message) {
+                        match serde_json::from_str::<MinimalEvent>(&message) {
+                            Ok(data) => {
+                                if !data.is_message() {
+                                    log::debug!(
+                                        "Received non-message event: {}, ignored.",
+                                        message
+                                    );
+                                    return;
+                                }
+                            }
+                            Err(e) => {
+                                log::warn!("Error deserializing event minimally: {}", e);
+                                return;
+                            }
+                        };
+                        let message_event: MessageEvent = match serde_json::from_str(&message) {
                             Ok(data) => data,
                             Err(e) => {
-                                log::warn!("Error deserializing message: {}", e);
+                                log::error!("Error deserializing message: {}", e);
                                 return;
                             }
                         };
                         let event = OnebotEvent {
-                            plain_data: plain_data.clone(),
+                            plain_data: message_event,
                             bot: self.clone(),
                         };
                         if let Err(e) = bot.sender.send(Box::new(event)) {
                             log::warn!("Error sending event: {}", e);
                         }
+                    } else {
+                        log::warn!("Received non-text message: {:?}", message)
                     }
                 })
                 .await;

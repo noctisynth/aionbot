@@ -45,6 +45,21 @@ impl Event for OnebotEvent {
             ))
         }
     }
+
+    fn reply<'s, 'a>(
+        &'s self,
+        message: Box<dyn ToString + Send + Sync>,
+    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<()>> + Send + 'a>>
+    where
+        's: 'a,
+    {
+        let bot = self.bot.clone();
+        Box::pin(async move {
+            let message = message.to_string();
+            bot.send(&self, &message).await;
+            Ok(())
+        })
+    }
 }
 
 impl OnebotEvent {

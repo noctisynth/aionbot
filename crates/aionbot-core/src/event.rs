@@ -1,4 +1,4 @@
-use std::any::Any;
+use std::{any::Any, future::Future, pin::Pin};
 
 use anyhow::{anyhow, Result};
 
@@ -35,5 +35,20 @@ pub trait Event: Any + Send + Sync {
             this is most likely a AionBot internal bug."
             ))
         }
+    }
+    /// Quickly reply back to the channel.
+    fn reply<'s, 'a>(
+        &'s self,
+        message: Box<dyn ToString + Send + Sync>,
+    ) -> Pin<Box<dyn Future<Output = Result<()>> + Send + 'a>>
+    where
+        Self: 'a,
+        's: 'a,
+    {
+        unimplemented!(
+            "Failed to quick reply message {} back to the channel, \
+            perhaps the bot runtime does not support this feature.",
+            message.to_string()
+        )
     }
 }

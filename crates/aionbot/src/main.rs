@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use aionbot_adapter_onebot::{Adapter, OnebotRuntime};
+use aionbot_adapter_onebot::OnebotRuntime;
 use aionbot_macros::register;
 use anyhow::Result;
 
@@ -14,7 +14,7 @@ pub async fn hello_world(event: Arc<Box<dyn Event>>) -> Result<String> {
         "Event content: {}",
         event.content().downcast::<&str>().unwrap()
     );
-    event.reply("Hello, world!").await?;
+    event.reply(Box::new("Hello, world!")).await?;
     Ok(())
 }
 
