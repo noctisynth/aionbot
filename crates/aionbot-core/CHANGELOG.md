@@ -1,5 +1,11 @@
 # Changelog
 
+## \[0.1.2]
+
+### New Features
+
+- [`1afc5a0`](https://github.com/noctisynth/aionbot/commit/1afc5a00d6ab36ad886d31e4179c7bc8ff9a0618) ([#24](https://github.com/noctisynth/aionbot/pull/24) by [@fu050409](https://github.com/noctisynth/aionbot/../../fu050409)) Add more internal routers.
+
 ## \[0.1.1]
 
 ### New Features
