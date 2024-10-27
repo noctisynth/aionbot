@@ -1,6 +1,31 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct MinimalEvent {
+    pub time: i64,
+    pub self_id: i64,
+    pub post_type: String,
+}
+
+impl MinimalEvent {
+    pub fn is_message(&self) -> bool {
+        self.post_type == "message"
+    }
+
+    pub fn is_notice(&self) -> bool {
+        self.post_type == "notice"
+    }
+
+    pub fn is_request(&self) -> bool {
+        self.post_type == "request"
+    }
+
+    pub fn is_meta_event(&self) -> bool {
+        self.post_type == "meta_event"
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Sender {
     pub user_id: Option<i64>,
     pub nickname: Option<String>,
@@ -21,7 +46,10 @@ pub struct Anonymous {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct MessageData {
+    #[serde(default)]
     pub text: String,
+    #[serde(default)]
+    pub qq: String,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]

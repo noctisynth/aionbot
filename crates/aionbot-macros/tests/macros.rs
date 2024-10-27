@@ -5,23 +5,11 @@ struct ConcreteEvent {
 }
 
 impl Event for ConcreteEvent {
-    fn get_emitter_id(&self) -> &str {
-        unimplemented!()
-    }
-
-    fn get_channel_id(&self) -> &str {
-        unimplemented!()
-    }
-
-    fn get_plain_data(&self) -> Box<dyn std::any::Any> {
-        unimplemented!()
-    }
-
-    fn get_content(&self) -> Box<dyn std::any::Any> {
+    fn content(&self) -> Box<dyn std::any::Any> {
         Box::new(self.plain_data.clone().leak() as &str)
     }
 
-    fn get_type(&self) -> &str {
+    fn event_type(&self) -> &str {
         unimplemented!()
     }
 }

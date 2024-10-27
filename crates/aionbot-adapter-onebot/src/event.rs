@@ -1,8 +1,9 @@
 use std::sync::Arc;
 
 use aionbot_core::event::Event;
+use anyhow::{anyhow, Result};
 
-use crate::{models::MessageEvent, ws::Bot};
+use crate::{bot::Bot, models::MessageEvent};
 
 #[derive(Clone, Debug)]
 pub struct OnebotEvent {
@@ -11,12 +12,11 @@ pub struct OnebotEvent {
 }
 
 impl Event for OnebotEvent {
-    fn get_type(&self) -> &str {
+    fn event_type(&self) -> &str {
         &self.plain_data.message_type
     }
 
-    fn get_content(&self) -> Box<dyn std::any::Any> {
-        println!("Event::get_content");
+    fn content(&self) -> Box<dyn std::any::Any> {
         let content = self
             .plain_data
             .message
@@ -24,24 +24,41 @@ impl Event for OnebotEvent {
             .map(|segment| segment.data.text.clone())
             .collect::<Vec<String>>();
         let result: &str = content.join("").leak();
-        println!("Event::get_content result: {}", result);
         Box::new(result)
     }
 
-    fn get_plain_data(&self) -> Box<dyn std::any::Any> {
+    fn plain_data(&self) -> Box<dyn std::any::Any> {
         Box::new(self.plain_data.clone())
     }
 
-    fn get_emitter_id(&self) -> &str {
+    fn emitter_id(&self) -> &str {
         self.plain_data.user_id.to_string().leak()
     }
 
-    fn get_channel_id(&self) -> &str {
-        self.plain_data
-            .group_id
-            .expect("Channel ID is not set, this event is most likely a private message")
-            .to_string()
-            .leak()
+    fn channel_id(&self) -> Result<&str> {
+        if let Some(group_id) = self.plain_data.group_id {
+            Ok(group_id.to_string().leak())
+        } else {
+            Err(anyhow!(
+                "Group ID not found in this event, \
+            perhaps this is not message from channel?"
+            ))
+        }
+    }
+
+    fn reply<'s, 'a>(
+        &'s self,
+        message: Box<dyn ToString + Send + Sync>,
+    ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<()>> + Send + 'a>>
+    where
+        's: 'a,
+    {
+        let bot = self.bot.clone();
+        Box::pin(async move {
+            let message = message.to_string();
+            bot.send(self, &message).await;
+            Ok(())
+        })
     }
 }
 

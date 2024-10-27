@@ -1,5 +1,6 @@
 pub extern crate aionbot_core;
 
+pub mod bot;
 pub mod event;
 pub mod models;
 pub mod ws;
@@ -56,9 +57,8 @@ impl Runtime for OnebotRuntime {
     }
 
     async fn prepare(&mut self) -> Result<()> {
-        println!("Preparing Onebot runtime");
+        log::debug!("Preparing for Onebot runtime...");
         self.onebot = Some(ws::Onebot::new().listen(Default::default()).await?);
-        println!("Onebot runtime prepared");
         Ok(())
     }
 
@@ -67,12 +67,15 @@ impl Runtime for OnebotRuntime {
     }
 
     async fn finalize(&mut self) -> Result<()> {
+        log::debug!("Finalizing Onebot runtime..");
         self.receiver = Some(self.onebot.as_ref().cloned().unwrap().subscribe().await);
         Ok(())
     }
 
     async fn run(&mut self) -> Result<RuntimeStatus> {
+        log::debug!("Waiting for Onebot runtime event loop...");
         let event = self.receiver.as_mut().unwrap().recv().await?;
+        log::debug!("Received Onebot event of type [{}].", event.event_type());
         Ok(RuntimeStatus::Event(event))
     }
 }
