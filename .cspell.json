@@ -9,5 +9,8 @@
         "onebot",
         "serde",
         "tungstenite"
+    ],
+    "ignorePaths": [
+        "pnpm-lock.yaml"
     ]
 }
