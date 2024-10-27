@@ -1,6 +1,7 @@
 pub mod entry;
 pub mod event;
 pub mod handler;
+pub mod plugin;
 pub mod prelude;
 pub mod queue;
 pub mod router;

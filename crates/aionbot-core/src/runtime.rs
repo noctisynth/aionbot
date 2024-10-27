@@ -1,9 +1,9 @@
-use std::sync::Arc;
+use std::{cell::UnsafeCell, sync::Arc};
 
 use anyhow::Result;
 use state::TypeMap;
 
-use crate::{entry::Entry, event::Event, handler::Handler, types::SetupFn};
+use crate::{entry::Entry, event::Event, handler::Handler, plugin::AionPlugin, types::SetupFn};
 
 #[derive(Default)]
 pub struct StateManager(pub(crate) TypeMap!(Send + Sync));
@@ -13,7 +13,7 @@ impl StateManager {
         StateManager(<TypeMap![Send + Sync]>::new())
     }
 
-    pub fn set<T: Send + Sync + 'static>(&mut self, state: T) {
+    pub fn set<T: Send + Sync + 'static>(&self, state: T) {
         self.0.set::<T>(state);
     }
 
@@ -31,7 +31,7 @@ impl StateManager {
 }
 
 pub struct Builder<R: Runtime + Default> {
-    handler: Arc<Option<Handler>>,
+    handler: UnsafeCell<Handler>,
     runtime: R,
     state: Arc<StateManager>,
     setup: Option<SetupFn<R>>,
@@ -45,13 +45,17 @@ where
         self.setup = Some(setup);
     }
 
-    pub fn invoke_handler(mut self, entries: Vec<Entry>) -> Self {
-        self.handler = Arc::new(Some(Handler::new(entries)));
+    pub fn invoke_handler<E: IntoIterator<Item = Entry>>(mut self, entries: E) -> Self {
+        self.handler.get_mut().extend(entries);
         self
     }
 
+    pub fn plugin(self, plugin: AionPlugin) -> Self {
+        self.invoke_handler(plugin.entries().to_vec())
+    }
+
     pub fn manage<T: Send + Sync + 'static>(self, state: T) -> Self {
-        self.state.0.set(state);
+        self.state.set(state);
         self
     }
 
@@ -79,15 +83,9 @@ where
                     self.runtime.prepare().await?;
                 }
                 RuntimeStatus::Event(event) => {
-                    let handler = self.handler.clone();
+                    let handler = unsafe { self.handler.get().as_mut() }.unwrap();
                     tokio::spawn(async move {
-                        if let Err(e) = handler
-                            .as_ref()
-                            .clone()
-                            .unwrap()
-                            .input(&Arc::new(event))
-                            .await
-                        {
+                        if let Err(e) = handler.input(Arc::new(event)).await {
                             log::error!("Error handling event: {}", e);
                         };
                     });
@@ -106,7 +104,7 @@ where
         let manager = Arc::new(StateManager::new());
         let runtime = R::default().set_manager(manager.clone());
         Self {
-            handler: Arc::new(None),
+            handler: UnsafeCell::new(Handler::empty()),
             runtime,
             state: Arc::clone(&manager),
             setup: None,

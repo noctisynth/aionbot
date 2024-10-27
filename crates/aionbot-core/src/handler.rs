@@ -18,8 +18,12 @@ impl Handler {
         Self { entries: vec![] }
     }
 
-    pub async fn input(&self, event: &Arc<Box<dyn Event>>) -> Result<()> {
-        let mut queue = self.matches(&***event);
+    pub fn extend<E: IntoIterator<Item = Entry>>(&mut self, entries: E) {
+        self.entries.extend(entries);
+    }
+
+    pub async fn input(&self, event: Arc<Box<dyn Event>>) -> Result<()> {
+        let mut queue = self.matches(&**event);
         while let Some(entry) = queue.pop() {
             entry.get_handler()(event.clone()).await?;
         }

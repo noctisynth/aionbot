@@ -3,10 +3,7 @@ use std::{hash::Hash, sync::Arc};
 use crate::{router::Router, types::Callback};
 
 #[derive(Clone)]
-pub struct Entry
-where
-    Self: Send,
-{
+pub struct Entry {
     pub id: &'static str,
     pub priority: i8,
     pub router: Arc<Box<dyn Router>>,
