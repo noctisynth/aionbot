@@ -1,24 +1,10 @@
-use std::sync::Arc;
+pub use aionbot_macros::register;
+pub use aionbot_core::prelude::*;
 
-use aionbot_adapter_onebot::OnebotRuntime;
-use aionbot_macros::register;
 use anyhow::Result;
-
 use colored::Colorize;
 
-struct State {}
-
-#[register(router = ExactMatchRouter::new("/hello"))]
-pub async fn hello_world(event: Arc<Box<dyn Event>>) -> Result<String> {
-    println!(
-        "Event content: {}",
-        event.content().downcast::<&str>().unwrap()
-    );
-    event.reply(Box::new("Hello, world!")).await?;
-    Ok(())
-}
-
-fn setup_logger() -> Result<()> {
+pub fn setup_logger() -> Result<()> {
     fern::Dispatch::new()
         .format(|out, message, record| {
             let level = record.level().as_str();
@@ -57,19 +43,5 @@ fn setup_logger() -> Result<()> {
         .level(log::LevelFilter::Debug)
         .chain(std::io::stdout())
         .apply()?;
-    Ok(())
-}
-
-#[tokio::main]
-async fn main() -> Result<()> {
-    setup_logger()?;
-
-    aionbot_core::runtime::Builder::<OnebotRuntime>::default()
-        .invoke_handler(vec![hello_world()])
-        .manage(State {})
-        .run()
-        .await
-        .expect("Failed to start the bot runtime.");
-
     Ok(())
 }

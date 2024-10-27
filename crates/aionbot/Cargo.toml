@@ -4,9 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-aionbot-adapter-onebot = { version = "0.1.0", path = "../aionbot-adapter-onebot" }
-aionbot-core = { version = "0.1.0", path = "../aionbot-core" }
-aionbot-macros = { version = "0.1.0", path = "../aionbot-macros" }
+aionbot-adapter-onebot = { version = "*", path = "../aionbot-adapter-onebot" }
+aionbot-core = { version = "*", path = "../aionbot-core" }
+aionbot-macros = { version = "*", path = "../aionbot-macros" }
 anyhow = "1.0.91"
 colored = "2.1.0"
 fern = "0.7.0"
