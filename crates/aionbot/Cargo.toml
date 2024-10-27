@@ -1,12 +1,17 @@
 [package]
 name = "aionbot"
 version = "0.1.0"
-edition = "2021"
+authors.workspace = true
+description.workspace = true
+edition.workspace = true
+homepage.workspace = true
+readme.workspace = true
+repository.workspace = true
+license.workspace = true
 
 [dependencies]
-aionbot-adapter-onebot = { version = "0.1.0", path = "../aionbot-adapter-onebot" }
-aionbot-core = { version = "0.1.0", path = "../aionbot-core" }
-aionbot-macros = { version = "0.1.0", path = "../aionbot-macros" }
+aionbot-core.workspace = true
+aionbot-macros.workspace = true
 anyhow = "1.0.91"
 colored = "2.1.0"
 fern = "0.7.0"

@@ -30,7 +30,6 @@ dependencies = [
 name = "aionbot"
 version = "0.1.0"
 dependencies = [
- "aionbot-adapter-onebot",
  "aionbot-core",
  "aionbot-macros",
  "anyhow",
