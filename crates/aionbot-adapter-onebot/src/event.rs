@@ -60,6 +60,10 @@ impl Event for OnebotEvent {
             Ok(())
         })
     }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
 }
 
 impl OnebotEvent {

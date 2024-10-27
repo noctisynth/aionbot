@@ -12,6 +12,10 @@ impl Event for ConcreteEvent {
     fn event_type(&self) -> &str {
         unimplemented!()
     }
+
+    fn as_any(&self) -> &dyn std::any::Any {
+        self
+    }
 }
 
 #[register(router = "test_router")]

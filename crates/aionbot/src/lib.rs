@@ -1,10 +1,14 @@
+pub extern crate aionbot_core;
+pub extern crate aionbot_macros;
+
 pub use aionbot_core::prelude::*;
+pub use aionbot_core::runtime::Builder;
 pub use aionbot_macros::register;
 
 use anyhow::Result;
 use colored::Colorize;
 
-pub fn setup_logger() -> Result<()> {
+pub fn setup_logger(log_level: log::LevelFilter) -> Result<()> {
     fern::Dispatch::new()
         .format(|out, message, record| {
             let level = record.level().as_str();
@@ -40,7 +44,7 @@ pub fn setup_logger() -> Result<()> {
             };
             out.finish(format_args!("{}", fmt_string))
         })
-        .level(log::LevelFilter::Debug)
+        .level(log_level)
         .chain(std::io::stdout())
         .apply()?;
     Ok(())
