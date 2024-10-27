@@ -56,7 +56,7 @@ impl Event for OnebotEvent {
         let bot = self.bot.clone();
         Box::pin(async move {
             let message = message.to_string();
-            bot.send(&self, &message).await;
+            bot.send(self, &message).await;
             Ok(())
         })
     }
