@@ -3,10 +3,14 @@
         "Aion",
         "aionbot",
         "chronos",
+        "covector",
         "Deque",
         "Hasher",
         "onebot",
         "serde",
         "tungstenite"
+    ],
+    "ignorePaths": [
+        "pnpm-lock.yaml"
     ]
 }

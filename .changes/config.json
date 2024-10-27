@@ -1,0 +1,50 @@
+{
+  "gitSiteUrl": "https://github.com/noctisynth/aionbot/",
+  "changeTags": {
+    "feat": "New Features",
+    "fix": "Bug Fixes",
+    "perf": "Performance Improvements",
+    "chore": "Chores",
+    "refactor": "Refactors"
+  },
+  "pkgManagers": {
+    "javascript": {
+      "version": true,
+      "getPublishedVersion": {
+        "use": "fetch:check",
+        "options": {
+          "url": "https://registry.npmjs.com/${ pkg.pkg }/${ pkg.pkgFile.version }"
+        }
+      },
+      "publish": ["npm publish --provenance --access public"]
+    },
+    "rust": {
+      "version": true,
+      "getPublishedVersion": {
+        "use": "fetch:check",
+        "options": {
+          "url": "https://crates.io/api/v1/crates/${ pkg.pkg }/${ pkg.pkgFile.version }"
+        }
+      },
+      "publish": ["cargo publish --no-verify --allow-dirty"]
+    }
+  },
+  "packages": {
+    "aionbot": {
+      "path": "./crates/aionbot",
+      "manager": "rust"
+    },
+    "aionbot-adapter-onebot": {
+      "path": "./crates/aionbot-adapter-onebot",
+      "manager": "rust"
+    },
+    "aionbot-core": {
+      "path": "./crates/aionbot-core",
+      "manager": "rust"
+    },
+    "aionbot-macros": {
+      "path": "./crates/aionbot-macros",
+      "manager": "rust"
+    }
+  }
+}
