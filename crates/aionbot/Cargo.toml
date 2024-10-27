@@ -10,9 +10,8 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
-aionbot-adapter-onebot = { version = "*", path = "../aionbot-adapter-onebot" }
-aionbot-core = { version = "*", path = "../aionbot-core" }
-aionbot-macros = { version = "*", path = "../aionbot-macros" }
+aionbot-core.workspace = true
+aionbot-macros.workspace = true
 anyhow = "1.0.91"
 colored = "2.1.0"
 fern = "0.7.0"

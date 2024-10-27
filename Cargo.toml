@@ -10,3 +10,8 @@ homepage = "https://github.com/noctisynth/aionbot"
 readme = "README.md"
 license = "AGPL-3.0-only"
 repository = "https://github.com/noctisynth/aionbot"
+
+[workspace.dependencies]
+aionbot = { path = "crates/aionbot" }
+aionbot-core = { path = "crates/aionbot-core" }
+aionbot-macros = { path = "crates/aionbot-macros" }
