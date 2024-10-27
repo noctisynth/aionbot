@@ -4,8 +4,6 @@ use crate::{router::Router, types::Callback};
 
 #[derive(Clone)]
 pub struct Entry
-where
-    Self: Send,
 {
     pub id: &'static str,
     pub priority: i8,

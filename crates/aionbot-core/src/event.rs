@@ -5,7 +5,7 @@ use anyhow::{anyhow, Result};
 pub trait Event: Any + Send + Sync {
     /// Get the name of the event.
     fn name(&self) -> &str {
-        "UnknownEvent"
+        "unknown_event"
     }
     /// Get the type of the event.
     fn event_type(&self) -> &str;
