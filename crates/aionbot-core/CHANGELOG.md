@@ -1,5 +1,11 @@
 # Changelog
 
+## \[0.1.3]
+
+### Bug Fixes
+
+- [`8e4987e`](https://github.com/noctisynth/aionbot/commit/8e4987e21ff121bf0bb9a536402f8bc302477f69) ([#26](https://github.com/noctisynth/aionbot/pull/26) by [@fu050409](https://github.com/noctisynth/aionbot/../../fu050409)) Fix command router matches for different prefixes.
+
 ## \[0.1.2]
 
 ### New Features
