@@ -28,7 +28,7 @@ dependencies = [
 
 [[package]]
 name = "aionbot"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aionbot-core",
  "aionbot-macros",
@@ -41,7 +41,7 @@ dependencies = [
 
 [[package]]
 name = "aionbot-adapter-onebot"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aionbot-core",
  "anyhow",
@@ -55,7 +55,7 @@ dependencies = [
 
 [[package]]
 name = "aionbot-core"
-version = "0.1.0"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "futures",

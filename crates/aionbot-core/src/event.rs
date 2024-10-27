@@ -53,3 +53,18 @@ pub trait Event: Any + Send + Sync {
     }
     fn as_any(&self) -> &dyn Any;
 }
+
+impl Event for String {
+    fn event_type(&self) -> &str {
+        "string_event"
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+
+    fn content(&self) -> Box<dyn Any> {
+        let str: &str = self.clone().leak();
+        Box::new(str)
+    }
+}
