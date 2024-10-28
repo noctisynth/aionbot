@@ -71,6 +71,7 @@ dependencies = [
 name = "aionbot-macros"
 version = "0.1.0"
 dependencies = [
+ "aionbot",
  "aionbot-core",
  "proc-macro2",
  "quote",
