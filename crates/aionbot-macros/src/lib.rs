@@ -100,7 +100,7 @@ pub fn register(attr: TokenStream, item: TokenStream) -> TokenStream {
     let expanded = quote! {
         use std::sync::*;
         use std::cell::*;
-        use aionbot_core::prelude::*;
+        use aionbot::prelude::*;
 
         pub fn #fn_name_ident(#fn_args) -> HandlerCallback {
             Box::pin(async move { #fn_body })
