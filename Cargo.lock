@@ -28,7 +28,7 @@ dependencies = [
 
 [[package]]
 name = "aionbot"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "aionbot-core",
  "aionbot-macros",
@@ -69,7 +69,7 @@ dependencies = [
 
 [[package]]
 name = "aionbot-macros"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "aionbot",
  "aionbot-core",
