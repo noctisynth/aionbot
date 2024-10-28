@@ -1,5 +1,13 @@
 # Changelog
 
+## \[0.1.4]
+
+### New Features
+
+- [`13c37fc`](https://github.com/noctisynth/aionbot/commit/13c37fc83e4c5d2a21ed3ca7e3e0705fee4f013e) ([#30](https://github.com/noctisynth/aionbot/pull/30) by [@fu050409](https://github.com/noctisynth/aionbot/../../fu050409)) Optimize router implementation for `AsRef<str>`.
+- [`13c37fc`](https://github.com/noctisynth/aionbot/commit/13c37fc83e4c5d2a21ed3ca7e3e0705fee4f013e) ([#30](https://github.com/noctisynth/aionbot/pull/30) by [@fu050409](https://github.com/noctisynth/aionbot/../../fu050409)) Support alias command for `CommandRouter`.
+- [`13c37fc`](https://github.com/noctisynth/aionbot/commit/13c37fc83e4c5d2a21ed3ca7e3e0705fee4f013e) ([#30](https://github.com/noctisynth/aionbot/pull/30) by [@fu050409](https://github.com/noctisynth/aionbot/../../fu050409)) Support router to match error event.
+
 ## \[0.1.3]
 
 ### Bug Fixes
