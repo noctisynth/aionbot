@@ -238,6 +238,12 @@ pub struct ErrorRouter<E: Error> {
 
 impl<E: Error> ErrorRouter<E> {
     pub fn new() -> Self {
+        Self::default()
+    }
+}
+
+impl<E: Error> Default for ErrorRouter<E> {
+    fn default() -> Self {
         Self {
             marker: PhantomData,
         }
