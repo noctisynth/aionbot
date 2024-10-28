@@ -2,7 +2,6 @@ use crate::event::Event;
 
 use super::Router;
 
-
 pub struct CommandRouter {
     pub prefixes: Vec<String>,
     pub command: Vec<String>,
